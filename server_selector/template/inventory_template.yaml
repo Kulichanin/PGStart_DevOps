@@ -1,0 +1,5 @@
+best_server:
+  hosts:
+all:
+  vars:
+    bad_server:
