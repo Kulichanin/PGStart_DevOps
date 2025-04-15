@@ -1,11 +1,9 @@
 from paramiko import SSHClient, AutoAddPolicy
 from sys import argv, stderr, exit
 from yaml import safe_load, dump
-from os import pardir
-from os.path import join
 
-SERVER_METRICS_INPUT = "CPU Load:{} %\nRAM Available:{} MB\nDisk I/O:{} %\nDisk Free:{} GB\nСумма очков:{}\n"
-TEMPLATE_FILE = "./template/inventory_template.yaml"
+SERVER_METRICS_INPUT = "CPU Load: {} %\nRAM Available: {} MB\nDisk I/O: {} %\nDisk Free: {} GB\nСумма очков: {}\n"
+TEMPLATE_FILE = "server_selector/template/inventory_template.yaml"
 
 
 def ssh_command(server, command):
@@ -20,9 +18,9 @@ def ssh_command(server, command):
         )
         _, stdout, _ = client.exec_command(command)
         return stdout.read().decode().strip()
-    except Exception as e:
-        print(f"[!] Ошибка подключения к {server}: {e}", file=stderr)
-        return None
+    except Exception as error:
+        print(f"[!] Ошибка подключения к {server}: {error}", file=stderr)
+        exit(1)
     finally:
         client.close()
 
@@ -77,11 +75,11 @@ def generate_inventory(best_server, bad_server):
         inventory['best_server']['hosts'] = {best_server: None}
         inventory['all']['vars']['bad_server'] = bad_server
 
-        with open(join(pardir, "inventory.yaml"), 'w') as f:
+        with open("inventory.yaml", 'w') as f:
             dump(inventory, f, sort_keys=False, default_flow_style=False)
         print(f"[+] Inventory создан на основе {TEMPLATE_FILE}")
-    except Exception as e:
-        print(f"[!] Ошибка генерации inventory: {e}", file=stderr)
+    except Exception as error:
+        print(f"[!] Ошибка генерации inventory: {error}", file=stderr)
         exit(1)
 
 
@@ -94,7 +92,7 @@ if __name__ == "__main__":
     servers = [server1, server2]
     scores = {}
 
-    print("[*] Анализ серверов для PostgreSQL...")
+    print("[*] Анализ серверов для PostgreSQL...\n")
     for server in servers:
         print(f"[*] Проверка {server}...")
         metrics = get_metrics(server)
@@ -108,5 +106,4 @@ if __name__ == "__main__":
     print(
         f"\n[*] Лучший сервер для PostgreSQL: {best_server} (Общие чесло очков: {scores[best_server]:.2f})")
 
-    generate_inventory(best_server, bad_server)
-    print("[!] Inventory-файл создан: inventory.yaml")
+    generate_inventory(best_server.split('@')[1], bad_server.split('@')[1])
