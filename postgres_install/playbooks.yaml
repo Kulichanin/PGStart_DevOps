@@ -7,6 +7,14 @@
     - geerlingguy.postgresql
   vars:
     timezone: Europe/Moscow
+    postgresql_users:
+      - name: student
+        password: # указать
+    postgresql_databases:
+      - name: studentdb
+    postgresql_privs:
+      - db: studentdb
+        roles: student
     postgresql_global_config_options:
       - option: listen_addresses
         value: '*'
@@ -20,4 +28,4 @@
       - { type: host, database: all, user: all, address: '127.0.0.1/32', auth_method: md5 }
       - { type: host, database: all, user: all, address: '::1/128', auth_method: md5 }
       - { type: host, database: all, user: all, address: 'all', auth_method: md5 }
-      - { type: host, database: all, user: student, address: "{{bad_server}}/24", auth_method: md5 }
+      - { type: host, database: studentdb, user: student, address: "{{bad_server}}/32", auth_method: md5 }

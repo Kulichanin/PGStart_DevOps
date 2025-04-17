@@ -43,9 +43,9 @@ Ansible [core 2.16.12] +
     - `awk`
     - `iostat`
 
-## Запуск скпипта
+## Запуск скрипта
 
-Для запуска склонировать репозиторий.
+Перед запуском склонировать репозиторий.
 
 ```bash
 git clone && cd "$(basename "$_" .git)"
@@ -63,6 +63,16 @@ pip install -r requirements.txt
 
 ```bash
 ansible-galaxy role install geerlingguy.postgresql buluma.timezone
+```
+
+В файле `postgres_install/playbooks.yaml` в строке `:12` указать пароль для пользователя БД **student**, иначе пользователь не будет иметь доступ к своей БД!
+
+```yaml
+...
+    postgresql_users:
+      - name: student
+        password: # указать пароль
+...
 ```
 
 Затем сделать скрипт исполняемым. Запустить скрипт.
