@@ -1,0 +1,10 @@
+---
+- name: Checking the database operation.
+  ansible.builtin.command:
+    cmd: /usr/bin/su - postgres -c "psql -c 'SELECT 1;'"
+  register: result
+  changed_when: false
+
+- name: Get commmand information for check db.
+  ansible.builtin.debug:
+    var: result.stdout_lines

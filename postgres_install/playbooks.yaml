@@ -4,17 +4,19 @@
   become: true
   roles:
     - buluma.timezone
+    - kdv.langpacks
     - geerlingguy.postgresql
+    - kdv.check_postgresql
   vars:
     timezone: Europe/Moscow
     postgresql_users:
       - name: student
-        password: # указать
+        password: # указать пароль
+      - name: remoteuser
+        password: # указать пароль
     postgresql_databases:
       - name: studentdb
-    postgresql_privs:
-      - db: studentdb
-        roles: student
+      - name: remotedb
     postgresql_global_config_options:
       - option: listen_addresses
         value: '*'
@@ -25,7 +27,5 @@
     postgresql_hba_entries:
       - { type: local, database: all, user: postgres, auth_method: peer }
       - { type: local, database: all, user: all, auth_method: peer }
-      - { type: host, database: all, user: all, address: '127.0.0.1/32', auth_method: md5 }
-      - { type: host, database: all, user: all, address: '::1/128', auth_method: md5 }
-      - { type: host, database: all, user: all, address: 'all', auth_method: md5 }
+      - { type: host, database: remotedb, user: remoteuser, address: 'all', auth_method: md5 }
       - { type: host, database: studentdb, user: student, address: "{{bad_server}}/32", auth_method: md5 }

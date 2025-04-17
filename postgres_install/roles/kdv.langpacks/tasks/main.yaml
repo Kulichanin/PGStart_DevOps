@@ -1,0 +1,10 @@
+---
+- name: Install all langpacks on RedHat family ansible_os_family.
+  ansible.builtin.include_tasks:
+    file: "packages/{{ ansible_os_family }}.yaml"
+  when: ansible_os_family == "RedHat"
+
+- name: Install all langpacks on Debian family ansible_os_family.
+  ansible.builtin.include_tasks:
+    file: "packages/{{ ansible_os_family }}.yaml"
+  when: ansible_os_family == "Debian"

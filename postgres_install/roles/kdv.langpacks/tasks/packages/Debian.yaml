@@ -1,0 +1,8 @@
+---
+- name: Install all langpacks on Debian family ansible_os_family.
+  ansible.builtin.apt:
+    name:
+      - locales-all
+      - language-pack-en-base
+    state: present
+  register: result_install

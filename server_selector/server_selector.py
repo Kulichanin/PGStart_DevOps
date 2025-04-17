@@ -4,7 +4,7 @@ from yaml import safe_load, dump
 
 SERVER_METRICS_INPUT = "CPU Load: {} %\nRAM Available: {} MB\nDisk I/O: {} %\nDisk Free: {} GB\nСумма очков: {}\n"
 TEMPLATE_FILE = "server_selector/template/inventory_template.yaml"
-
+REMOTE_USER="root"
 
 def ssh_command(server, command):
     """Подключение к серверам"""
@@ -12,8 +12,8 @@ def ssh_command(server, command):
     client.set_missing_host_key_policy(AutoAddPolicy())
     try:
         client.connect(
-            hostname=server.split('@')[1],
-            username=server.split('@')[0],
+            hostname=server,
+            username=REMOTE_USER,
             timeout=5
         )
         _, stdout, _ = client.exec_command(command)
@@ -106,4 +106,4 @@ if __name__ == "__main__":
     print(
         f"\n[*] Лучший сервер для PostgreSQL: {best_server} (Общие чесло очков: {scores[best_server]:.2f})")
 
-    generate_inventory(best_server.split('@')[1], bad_server.split('@')[1])
+    generate_inventory(best_server, bad_server)

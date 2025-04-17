@@ -13,7 +13,9 @@
     * С помощью [PyYAML](https://pypi.org/project/PyYAML/) формирует на основе выбора `inventory.yaml` для Ansible.  
 3. Используя `inventory.yaml` запускает Ansible для настройки сервера.
     * Ansible role [buluma.timezone](https://galaxy.ansible.com/ui/standalone/roles/buluma/timezone/documentation/) настраивает корректное время(Полезно для сбора и обработки логов и метрик).
+    * Ansible role kdv.langpacks устанавливает локали для корректного создания баз данных.
     * Ansible role [geerlingguy.postgresql](https://github.com/geerlingguy/ansible-role-postgresql)
+    * Ansible role kdv.check_postgresql производит проверку работы сервера согласно заданию командой: `SELECT 1`
 
 ## Алгоритм выбора сервера
 
@@ -65,12 +67,14 @@ pip install -r requirements.txt
 ansible-galaxy role install geerlingguy.postgresql buluma.timezone
 ```
 
-В файле `postgres_install/playbooks.yaml` в строке `:12` указать пароль для пользователя БД **student**, иначе пользователь не будет иметь доступ к своей БД!
+В файле `postgres_install/playbooks.yaml` в строке `:14` и `:16` указать пароль для пользователя БД **student** и **remoteuser**, иначе настройка не произойдет корректно и пользователи не будет иметь доступ к своей БД!
 
 ```yaml
 ...
     postgresql_users:
       - name: student
+        password: # указать пароль
+      - name: remoteuser
         password: # указать пароль
 ...
 ```
@@ -79,5 +83,19 @@ ansible-galaxy role install geerlingguy.postgresql buluma.timezone
 
 ```bash
 chmod u+x ./up.sh
-./up.sh ip-server-1, ip-server-2
+./up.sh ip-server-1,ip-server-2
+```
+
+В случае успешной настройки `postgresql` в конце работы скрипты выполучите в выводе конадной строки такие строки:
+
+```yaml
+TASK [kdv.check_postgresql : Get commmand information for check db.] *************************************************************************************************************************
+ok: [ip-сервера] => {
+    "result.stdout_lines": [
+        " ?column? ",
+        "----------",
+        "        1",
+        "(1 row)"
+    ]
+}
 ```

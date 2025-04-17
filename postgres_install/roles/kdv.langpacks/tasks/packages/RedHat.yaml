@@ -1,0 +1,7 @@
+---
+- name: Install all langpacks on RedHat family ansible_os_family.
+  ansible.builtin.dnf:
+    name:
+      - glibc-all-langpacks
+    state: present
+  register: result_install
