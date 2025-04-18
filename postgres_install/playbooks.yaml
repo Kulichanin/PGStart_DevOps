@@ -5,10 +5,23 @@
   roles:
     - buluma.timezone
     - kdv.langpacks
+    - geerlingguy.firewall
     - geerlingguy.postgresql
     - kdv.check_postgresql
   vars:
     timezone: Europe/Moscow
+    firewall_state: started
+    firewall_enabled_at_boot: true
+    firewall_disable_firewalld: true
+    firewall_disable_ufw: true
+    firewall_enable_ipv6: false
+    firewall_allowed_tcp_ports:
+      - "22"
+      - "53"
+      - "5432"
+    firewall_allowed_udp_ports:
+      - "53"
+    postgres_users_no_log: false
     postgresql_users:
       - name: student
         password: # указать пароль
@@ -17,6 +30,15 @@
     postgresql_databases:
       - name: studentdb
       - name: remotedb
+    postgresql_privs:
+      - db: studentdb
+        privs: ALL
+        type: database
+        roles: student
+      - db: remotedb
+        privs: ALL
+        type: database
+        roles: remoteuser
     postgresql_global_config_options:
       - option: listen_addresses
         value: '*'
@@ -26,6 +48,5 @@
         value: '/var/log'
     postgresql_hba_entries:
       - { type: local, database: all, user: postgres, auth_method: peer }
-      - { type: local, database: all, user: all, auth_method: peer }
-      - { type: host, database: remotedb, user: remoteuser, address: 'all', auth_method: md5 }
+      - { type: host, database: remotedb, user: remoteuser, address: all, auth_method: md5 }
       - { type: host, database: studentdb, user: student, address: "{{bad_server}}/32", auth_method: md5 }

@@ -25,7 +25,7 @@ else
     exit 1
 fi
 
-# # Проверка результата
+# Проверка результата
 if [ -f "inventory.yaml" ]; then
     echo -e "\nСодержимое inventory.yaml:"
     cat inventory.yaml
@@ -34,6 +34,6 @@ else
     exit 1
 fi
 
-# # Запуск Ansible
+# Запуск Ansible
 echo -e "\n[*]Запуск Ansible для установки и настройки PostgreSQL..."
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.yaml ./postgres_install/playbooks.yaml

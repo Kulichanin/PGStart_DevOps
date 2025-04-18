@@ -6,16 +6,18 @@
 
 ## Алгоритм работы
 
-1. Bash-скрипт принимает данные для входа на сервер.
+1. Bash-скрипт принимает данные для входа на сервер в формате `./up.sh <server1>,<server2>`.
+    * Проверяет корректность данных.
 2. Запускает Python-скрипт `server_selector/server_selector.py <server1> <server2>`.
     * Подключается с помощью [paramiko](https://www.paramiko.org/) к северам и получается метрики.
     * Выбирает лучший сервер.
     * С помощью [PyYAML](https://pypi.org/project/PyYAML/) формирует на основе выбора `inventory.yaml` для Ansible.  
 3. Используя `inventory.yaml` запускает Ansible для настройки сервера.
-    * Ansible role [buluma.timezone](https://galaxy.ansible.com/ui/standalone/roles/buluma/timezone/documentation/) настраивает корректное время(Полезно для сбора и обработки логов и метрик).
+    * Ansible role [buluma.timezone](https://galaxy.ansible.com/ui/standalone/roles/buluma/timezone/documentation/) настраивает корректное время. (Полезно для сбора и обработки логов и метрик).
     * Ansible role kdv.langpacks устанавливает локали для корректного создания баз данных.
-    * Ansible role [geerlingguy.postgresql](https://github.com/geerlingguy/ansible-role-postgresql)
-    * Ansible role kdv.check_postgresql производит проверку работы сервера согласно заданию командой: `SELECT 1`
+    * Ansible role [geerlingguy.firewall](https://github.com/geerlingguy/ansible-role-firewall) производит настройку `iptables` для доступа к базу данных.
+    * Ansible role [geerlingguy.postgresql](https://github.com/geerlingguy/ansible-role-postgresql) производит установку, настройку и создание пользователей с базами данных для подключения согласно заданию. (Давать удаленный доступ к пользователю `postgres`считается небезопасным!)
+    * Ansible role kdv.check_postgresql производит проверку работы сервера согласно заданию командой: `SELECT 1`.
 
 ## Алгоритм выбора сервера
 
@@ -32,12 +34,13 @@
 
 ## Системные требования для запуска
 
-Для машины на которой запускается скрипт:
+Для машины, на которой запускается скрипт:
 
 OS: Linux
-Bash
-Python [3.9] +
-Ansible [core 2.16.12] +
+Utilities:
+    - `Bash`
+    - `Python [3.9 +]`
+    - `Ansible [core 2.16.12 +]`
 
 Для виртуальных машин необходимо наличие следующих утилит:
     - `df`
@@ -50,7 +53,7 @@ Ansible [core 2.16.12] +
 Перед запуском склонировать репозиторий.
 
 ```bash
-git clone && cd "$(basename "$_" .git)"
+git clone git@github.com:Kulichanin/PGStart_DevOps.git && cd "$(basename "$_" .git)"
 ```
 
 Создать env для python скрипта и установить необходимые пакеты
@@ -64,10 +67,10 @@ pip install -r requirements.txt
 Скачать ansible роли для установки и настройки.
 
 ```bash
-ansible-galaxy role install geerlingguy.postgresql buluma.timezone
+ansible-galaxy role install geerlingguy.firewall geerlingguy.postgresql buluma.timezone
 ```
 
-В файле `postgres_install/playbooks.yaml` в строке `:14` и `:16` указать пароль для пользователя БД **student** и **remoteuser**, иначе настройка не произойдет корректно и пользователи не будет иметь доступ к своей БД!
+В файле `postgres_install/playbooks.yaml` в строке `:27` и `:29` указать пароль для пользователя БД **student** и **remoteuser**, иначе настройка произойдет не корректно!
 
 ```yaml
 ...
