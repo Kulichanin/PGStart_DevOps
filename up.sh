@@ -3,7 +3,6 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-set -e
 
 # Проверяем, что передано ровно два адреса сервера через запятую
 if [ $# -ne 1 ] || [ -z "$1" ]; then
